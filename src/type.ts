@@ -1,0 +1,96 @@
+export type ResvgRenderOptionsType = {
+  font?: {
+    loadSystemFonts?: boolean // Default: true, if set to false, it will be faster.
+    fontFiles?: string[] // A list of local font file paths to load.
+    fontDirs?: string[] // A list of local font directories to load.
+    defaultFontSize?: number // Default: 12
+    defaultFontFamily?: string // Default: "", if `loadSystemFonts` is enabled, it will be set to the first font in the list of system fonts.
+    serifFamily?: string
+    sansSerifFamily?: string
+    cursiveFamily?: string
+    fantasyFamily?: string
+    monospaceFamily?: string
+  }
+  dpi?: number
+  languages?: string[]
+  shapeRendering?:
+    | 0 // optimizeSpeed
+    | 1 // crispEdges
+    | 2 // geometricPrecision
+  textRendering?:
+    | 0 // optimizeSpeed
+    | 1 // optimizeLegibility
+    | 2 // geometricPrecision'
+  imageRendering?:
+    | 0 // optimizeQuality
+    | 1 // optimizeSpeed
+  fitTo?:
+    | { mode: 'original' }
+    | { mode: 'width'; value: number }
+    | { mode: 'height'; value: number }
+    | { mode: 'zoom'; value: number }
+  background?: string // Support CSS3 color, e.g. rgba(255, 255, 255, .8)
+  crop?: {
+    left: number
+    top: number
+    right?: number
+    bottom?: number
+  }
+  logLevel?: 'off' | 'error' | 'warn' | 'info' | 'debug' | 'trace'
+}
+export class BBoxType {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
+export declare function renderAsyncType(
+  svg: string | Buffer,
+  options?: ResvgRenderOptionsType | null,
+  signal?: AbortSignal | null,
+): Promise<RenderedImage>
+export declare class ResvgType {
+  constructor(svg: Buffer | string, options?: ResvgRenderOptionsType | null)
+  toString(): string
+  render(): RenderedImage
+  /**
+   * Calculate a maximum bounding box of all visible elements in this SVG.
+   *
+   * Note: path bounding box are approx values.
+   */
+  innerBBox(): BBoxType | undefined
+  /**
+   * Calculate a maximum bounding box of all visible elements in this SVG.
+   * This will first apply transform.
+   * Similar to `SVGGraphicsElement.getBBox()` DOM API.
+   */
+  getBBox(): BBoxType | undefined
+  /**
+   * Use a given `BBox` to crop the svg. Currently this method simply changes
+   * the viewbox/size of the svg and do not move the elements for simplicity
+   */
+  cropByBBox(bbox: BBoxType): void
+
+  imagesToResolve(): Array<string>
+  resolveImage(href: string, buffer: Buffer): void
+
+  /** Get the SVG width */
+  get width(): number
+
+  /** Get the SVG height */
+  get height(): number
+}
+export declare class RenderedImage {
+  /** Write the image data to Buffer */
+  asPng(): Buffer
+
+  /** Get the RGBA pixels of the image */
+  get pixels(): Buffer
+
+  /** Get the PNG width */
+  get width(): number
+
+  /** Get the PNG height */
+  get height(): number
+}
